@@ -89,8 +89,8 @@ tabsParent.addEventListener('click', function(event){
     //Modal
 
     let modalTrigger=document.querySelectorAll('[data-modal]'),
-        modal=document.querySelector('.modal'),
-        modalClose=document.querySelector('[data-close]');
+        modal=document.querySelector('.modal');
+        // modalClose=document.querySelector('[data-close]');
 
     function openModal(){
         modal.classList.add('show');
@@ -106,10 +106,10 @@ tabsParent.addEventListener('click', function(event){
         modal.classList.remove('show');
         document.body.style.overflow='';
     };
-    modalClose.addEventListener('click', CloseModalWindow);
+    // modalClose.addEventListener('click', CloseModalWindow);
    
     modal.addEventListener('click', (e)=>{
-        if(e.target==modal){
+        if(e.target===modal || e.target.getAttribute('data-close')==''){
             CloseModalWindow();
         }
     });
@@ -119,7 +119,7 @@ tabsParent.addEventListener('click', function(event){
         }
     });
 
-    let modalTimerId=setTimeout(openModal, 9000); 
+    let modalTimerId=setTimeout(openModal, 90000); 
 
     function showModalByScroll(){
         if(window.pageYOffset+document.documentElement.clientHeight >=document.documentElement.scrollHeight){
@@ -205,9 +205,9 @@ class MenuCard {
     let form=document.querySelectorAll('form');
 
     let message={
-        loading: 'Загрузка',
-        success: 'Загрузка завершена',
-        failure: 'Ошибка при загрузке'
+        loading: 'icons/spinner.svg',
+        success: 'Спасибо, Ваша заявка получена, скоро мы с Вами свяжемся!',
+        failure: 'Ошибка! Попробуйте еще раз или свяжитесь с администратором при повторении данной ошибки'
     };
 
     form.forEach(item=>{
@@ -219,11 +219,15 @@ class MenuCard {
         form.addEventListener('submit', (e)=>{
             e.preventDefault();
 
-            let statusMessage=document.createElement('div');
-            statusMessage.classList.add('status');
-            statusMessage.textContent=message.loading;
-            form.append(statusMessage);
+            let statusMessage=document.createElement('img');
+            statusMessage.src=message.loading;
+            statusMessage.style.cssText=`
+            display: block;
+            margin: 0 auto;
 
+            `;
+            // form.append(statusMessage);
+            form.insertAdjacentElement('afterend', statusMessage);
 
             let request =new XMLHttpRequest();
             request.open('POST','server.php');
@@ -243,18 +247,41 @@ class MenuCard {
             request.addEventListener('load', ()=>{
                 if(request.status===200){
                     console.log(request.response);
-                    statusMessage.textContent=message.success;
+                    showThanks(message.success);
                     form.reset();
-                    setTimeout( ()=>{
                         statusMessage.remove();
-
-                    },2000);
-
                 }else{
-                    statusMessage.textContent=message.failure;
+                    showThanks(message.failure);
                 }
             });
             
         });
+    }
+
+    function showThanks(message){
+        const prevModalDialog=document.querySelector('.modal__dialog');
+
+        prevModalDialog.classList.add('hide');
+        openModal();
+
+        const thanksMod=document.createElement('div');
+        thanksMod.classList.add('modal__dialog');
+        thanksMod.innerHTML=`
+        <div class="modal__content">
+            <div data-close class="modal__close">&times;</div>
+            <div class="modal__title">${message}</div>
+        </div>
+        `;
+
+        document.querySelector('.modal').append(thanksMod);
+        setTimeout( ()=>{
+            thanksMod.remove();
+            prevModalDialog.classList.add('show');
+            prevModalDialog.classList.remove('hide');
+            CloseModalWindow();
+
+        },4000);
+
+
     }
 });
