@@ -73,7 +73,6 @@ tabsParent.addEventListener('click', function(event){
 
         function updateClock(){
             let t=getTimeRemain(endtime);
-
             days.innerHTML=getZero(t.days);
             hours.innerHTML=getZero(t.hours);
             minutes.innerHTML=getZero(t.minutes);
@@ -127,7 +126,6 @@ tabsParent.addEventListener('click', function(event){
             window.removeEventListener('scroll', showModalByScroll);
         }
     }
-
     window.addEventListener('scroll', showModalByScroll);
 
 //Классы для карточек
@@ -214,7 +212,6 @@ class MenuCard {
         return await  res.json();
     };
 
-
     function postData(form){
         form.addEventListener('submit', (e)=>{
             e.preventDefault();
@@ -229,15 +226,12 @@ class MenuCard {
             form.insertAdjacentElement('afterend', statusMessage);
             
             const formData=new FormData(form);
-
             const json =JSON.stringify(Object.fromEntries(formData.entries()));
-
 
             // const obj={};
             // formData.forEach(function(value, key){
             //     obj[key]=value;
             // });
-
             // fetch('server.php',{         //Старый код с использованием fetch вместо функции fetchPostData
             //     method: 'POST',
             //     headers: {
@@ -256,8 +250,7 @@ class MenuCard {
                     showThanks(message.failure);
             }).finally(()=>{
                     form.reset();
-            });
-            
+            });   
         });
     }
 
@@ -289,5 +282,130 @@ class MenuCard {
     fetch('http://localhost:3000/menu')
     .then(data=>data.json())
     .then(res=>console.log(res));
+
+    //Slider
+
+    // const slides= document.querySelectorAll('.offer__slide'),
+    //         prev=document.querySelector('.offer__slider-prev'),
+    //         next=document.querySelector('.offer__slider-next'),
+    //         total=document.querySelector('#total'),
+    //         current=document.querySelector('#current');    
+    // let slideIndex=1;
+
+    // showSlide(slideIndex);
+
+    // if(slides.length<10){
+    //     total.textContent=`0${slides.length}`;
+    //     } else{
+    //         total.textContent=slides.length;
+    //     }
+
+    // function showSlide(n){
+    //     if( n> slides.length){
+    //         slideIndex=1;
+    //     }
+    //     if(n<1){
+    //         slideIndex=slides.length;
+    //     }
+    //     slides.forEach(item=> item.style.display='none');
+    //     slides[slideIndex-1].style.display='block';
+
+    //     if(slides.length<10){
+    //         current.textContent=`0${slideIndex}`;
+    //         } else{
+    //             current.textContent=slideIndex;
+    //         }
+    // }
+
+    // function plusSlider(n){
+    //     showSlide(slideIndex+=n);
+    // }
+
+    // prev.addEventListener('click', ()=>{
+    //     plusSlider(-1);
+    // });
+    // next.addEventListener('click', ()=>{
+    //     plusSlider(1);
+    // });
+
+//slider ver 2
+
+const slides= document.querySelectorAll('.offer__slide'),
+            prev=document.querySelector('.offer__slider-prev'),
+            next=document.querySelector('.offer__slider-next'),
+            total=document.querySelector('#total'),
+            current=document.querySelector('#current'),
+            slidesWrapper=document.querySelector('.offer__slider-wrapper'),
+            slidesInner=document.querySelector('.offer__slider_inner'),
+            width=window.getComputedStyle(slidesWrapper).width;
+
+    let slideIndex=1;
+    let offset=0;
+
+     if(slides.length<10){                      //Нумерация
+        total.textContent=`0${slides.length}`;
+        current.textContent=`0${slideIndex}`;
+        } else{
+            total.textContent=slides.length;
+            current.textContent=slideIndex;
+
+        }
+
+    slidesInner.style.width=100*slides.length+ '%';
+    slidesInner.style.display='flex';
+    slidesInner.style.transition='0.5s all';
+    slidesWrapper.style.overflow='hidden';
+
+    next.addEventListener('click',()=>{
+        if(offset== +width.slice(0, width.length-2)*(slides.length-1)){
+            offset=0;
+        }else{
+            offset+= +width.slice(0, width.length-2);
+        }
+
+        slidesInner.style.transform=`translateX(-${offset}px)`;
+
+        if(slideIndex==slides.length){
+            slideIndex=1;
+        }else{
+            slideIndex++;
+        }
+
+        if(slides.length<10){
+            current.textContent=`0${slideIndex}`;
+        }else{
+            current.textContent=slideIndex;
+        }
+
+    });
+
+    prev.addEventListener('click',()=>{
+        if(offset==0){
+            offset= +width.slice(0, width.length-2)*(slides.length-1);
+        }else{
+            offset-=width.slice(0, width.length-2);
+        }
+
+        slidesInner.style.transform=`translateX(-${offset}px)`;
+
+        if(slideIndex==1){
+            slideIndex=slides.length;
+        }else{
+            slideIndex--;
+        }
+
+        if(slides.length<10){
+            current.textContent=`0${slideIndex}`;
+        }else{
+            current.textContent=slideIndex;
+        }
+    });
+
+    slides.forEach(slide=>{
+        slide.style.width=width;
+    });
+     
+
+
 
 });
